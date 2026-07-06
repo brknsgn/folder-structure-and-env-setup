@@ -7,8 +7,11 @@ require('dotenv').config();
 const express = require('express');
 const connectDB = require('./config/db'); 
 
+
+
 // 3. Initialize the Express application
 const app = express();
+
 
 // 4. Execute the database connection
 connectDB();
@@ -16,6 +19,12 @@ connectDB();
 // 5. GLOBAL MIDDLEWARE
 // This allows our app to accept and parse incoming JSON data in the request body
 app.use(express.json());
+
+// Import routes
+const transactions = require('./src/routes/transactionRoutes');
+
+// Mount routes
+app.use('/transactions', transactions);
 
 // 6. ROUTES
 // Express replaces the if/else logic with clean routing methods (app.get, app.post, etc.)
@@ -39,3 +48,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Express server is running on port ${PORT}...`);
 });
+
