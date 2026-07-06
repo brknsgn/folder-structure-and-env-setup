@@ -42,10 +42,29 @@ app.use((req, res) => {
     res.status(404).json({ error: "Endpoint not found" });
 });
 
-// 8. Start the server
-const PORT = process.env.PORT || 3000;
+// 8. Error Handling Middleware
+const errorHandler = require('./src/middlewares/errorMiddleware');
+
+
+// 8.1. Mount regular routes
+app.use('/transactions', transactions);
+
+// 8.2. Mount the 404 fallback
+app.use((req, res, next) => {
+    const error = new Error('Endpoint not found');
+    res.status(404);
+    next(error); // Pass this 404 error down to the error handler
+});
+
+// 8.3. Mount the Error Handler (MUST BE THE VERY LAST app.use())
+app.use(errorHandler);
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}...`));
+// 9. Start the server
 
 app.listen(PORT, () => {
     console.log(`Express server is running on port ${PORT}...`);
 });
+
+
 
