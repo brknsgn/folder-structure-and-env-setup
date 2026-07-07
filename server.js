@@ -1,16 +1,22 @@
 // server.js
 
 // 1. Load environment variables FIRST
-require('dotenv').config();
+require('dotenv').config()
 
 // 2. Import Express and the database connection
-const express = require('express');
-const connectDB = require('./config/db'); 
+const express = require('express'); // Import the Express framework to create the server
+const connectDB = require('./config/db');  // Import the database connection function to connect to MongoDB
+const cors = require('cors'); // Import CORS middleware to handle cross-origin requests
+const morgan = require('morgan'); // Import Morgan middleware for logging HTTP requests
+const rateLimit = require('express-rate-limit'); // Import rate limiting middleware to prevent abuse and DDoS attacks
+const swaggerUi = require('swagger-ui-express'); // Import Swagger UI middleware to serve API documentation
+const YAML = require('yamljs'); // Import YAML parser to load the Swagger documentation from a YAML file
 
 
 
 // 3. Initialize the Express application
 const app = express();
+const swaggerDocument = YAML.load('./swagger.yaml'); // Load the Swagger YAML file
 
 
 // 4. Execute the database connection
@@ -19,12 +25,22 @@ connectDB();
 // 5. GLOBAL MIDDLEWARE
 // This allows our app to accept and parse incoming JSON data in the request body
 app.use(express.json());
-
+app.use(cors()); // Enable CORS for all routes
+app.use(morgan('dev')); // Log HTTP requests to the console for easier debugging
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again after 15 minutes'
+});
+app.use(limiter); // Apply rate limiting to all requests
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument)); // Serve Swagger UI at /api-docs
 // Import routes
 const transactions = require('./src/routes/transactionRoutes');
+const categories = require('./src/routes/categoryRoutes');
 
 // Mount routes
 app.use('/transactions', transactions);
+app.use('/categories', categories);
 
 // 6. ROUTES
 // Express replaces the if/else logic with clean routing methods (app.get, app.post, etc.)
@@ -46,25 +62,29 @@ app.use((req, res) => {
 const errorHandler = require('./src/middlewares/errorMiddleware');
 
 
-// 8.1. Mount regular routes
-app.use('/transactions', transactions);
-
 // 8.2. Mount the 404 fallback
-app.use((req, res, next) => {
-    const error = new Error('Endpoint not found');
-    res.status(404);
+app.use((req, res, next) => { // If no route matches, this middleware will be called
+    const error = new Error('Endpoint not found'); // Create a new error object with a message
+    res.status(404); // Set the response status to 404 (Not Found)
     next(error); // Pass this 404 error down to the error handler
 });
 
-// 8.3. Mount the Error Handler (MUST BE THE VERY LAST app.use())
+// START THE SERVER
 app.use(errorHandler);
 const PORT = process.env.PORT || 3000
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}...`));
-// 9. Start the server
+// Start the server only if this file is run directly (not imported for testing)
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
 
-app.listen(PORT, () => {
-    console.log(`Express server is running on port ${PORT}...`);
-});
+// Export the app for testing purposes
+module.exports = app;
+
+
+
+
 
 
 

@@ -1,0 +1,54 @@
+openapi: 3.0.0
+info:
+  title: Personal Finance Tracker API
+  version: 1.0.0
+  description: REST API for managing personal finance transactions, including income and expenses.
+servers:
+  - url: http://localhost:3000
+paths:
+  /transactions: 
+    get:
+      summary: Retrieve a list of all transactions with pagination support.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: The page number to retrieve.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: The number of transactions to retrieve per page.
+      responses: 
+        '200':
+          description: Successfully retrieved the list of transactions.
+    post:
+      summary: Create a new transaction (income or expense).
+      requestBody:
+        description: The transaction to create.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                  description: The amount of the transaction.
+                type:
+                  type: string
+                  enum: [income, expense]
+                  description: The type of the transaction (income or expense).
+                category:
+                  type: string
+                  description: The category of the transaction (e.g., groceries, salary).
+                date:
+                  type: string
+                  format: date-time
+                  description: The date and time of the transaction.
+      responses: 
+        '201':
+          description: Successfully created a new transaction.

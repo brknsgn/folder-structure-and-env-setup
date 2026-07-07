@@ -17,9 +17,10 @@ const transactionSchema = new mongoose.Schema({
 
     },
     category: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
         required: [true, "Category is required"],
-        trim: true
+    
     },
     note: {
         type: String,
@@ -28,7 +29,8 @@ const transactionSchema = new mongoose.Schema({
     },
     date: {
         type: Date,
-        default: Date.now
+        default: Date.now,
+        max: [Date.now, "Date cannot be in the future"]
     }
 }, {
     timestamps: true
