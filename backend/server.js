@@ -21,8 +21,8 @@ const swaggerDocument = YAML.load(__dirname + '/swagger.yaml');
 connectDB();
 
 // 5. GLOBAL MIDDLEWARE
-app.use(express.json()); // Parse incoming JSON requests
-app.use(cors()); // Enable Cross-Origin Resource Sharing
+app.use(cors());// Enable Cross-Origin Resource Sharing
+app.use(express.json()); // Parse incoming JSON requests 
 app.use(morgan('dev')); // Log HTTP requests
 
 // Configure rate limiting to prevent DDoS attacks
