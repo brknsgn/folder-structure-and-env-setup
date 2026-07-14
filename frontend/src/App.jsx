@@ -15,9 +15,7 @@ function App() {
   const [selectedDate, setSelectedDate] = useState('');
 
   // Function to force a table refresh
-  const handleDataChange = () => {
-    setRefreshTrigger(prev => prev + 1);
-  };
+ 
 
   return (
     <div>
@@ -26,23 +24,11 @@ function App() {
         <Dashboard />
         
         {/* Pass the data change handler to the Form */}
-        <TransactionForm onTransactionAdded={handleDataChange} />
         
-        {/* Pass the filter states and their setter functions to Filters */}
-        <Filters 
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-        />
         
-        {/* Pass the trigger AND the active filters to the Table */}
-        <TransactionTable 
-          refreshTrigger={refreshTrigger} 
-          onDataChanged={handleDataChange}
-          filterCategory={selectedCategory}
-          filterDate={selectedDate}
-        />
+    
+        
+        
       </main>
     </div>
   );

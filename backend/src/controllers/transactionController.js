@@ -1,35 +1,58 @@
+const Transaction = require('../models/Transaction'); 
 
-const Transaction = require('../models/Transaction'); // Import the Transaction model to interact with the database
-
-// @desc    Get all transactions with pagination
+// @desc    Get all transactions with pagination & filtering
 // @route   GET /transactions
-exports.getTransactions = async (req, res,next) => {
+exports.getTransactions = async (req, res, next) => {
     try {
-        const page = parseInt(req.query.page, 10) || 1; // Default to page 1 if not provided
-        const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 items per page if not provided
+        // Set up pagination variables (default to page 1, limit 10)
+        const page = parseInt(req.query.page, 10) || 1; 
+        const limit = parseInt(req.query.limit, 10) || 10; 
+        const skip = (page - 1) * limit; 
 
-        const skip = (page - 1) * limit; // Calculate how many documents to skip based on the current page and limit
+        // Create the filter object for the MongoDB query
+        const filter = {};
 
-        const transactions = await Transaction.find()
-        .populate('category', 'name color') // Populate the category field with its name and color
-        .sort({ date: -1 }) // Sort transactions by date in descending order (most recent first)
-        .skip(skip) // Skip the appropriate number of documents for pagination
-        .limit(limit); // Fetch transactions with pagination and sort by date in descending order
-        const total = await Transaction.countDocuments(); // Get the total number of transactions
+        // 1. Category Filter: Add to query only if a specific category is selected
+        if (req.query.category && req.query.category !== 'all') {
+            filter.category = req.query.category;
+        }
+
+        // 2. Date Filter: Find transactions that match the exact selected day
+        if (req.query.date && req.query.date.trim() !== '') {
+            const targetDate = new Date(req.query.date);
+            const nextDate = new Date(targetDate);
+            nextDate.setDate(nextDate.getDate() + 1); // Move to the next day to create a 24-hour range
+
+            filter.date = {
+                $gte: targetDate, // Greater than or equal to the selected date
+                $lt: nextDate     // Strictly less than the next day
+            };
+        }
+
+        // Fetch filtered, populated, sorted, and paginated transactions from the database
+        const transactions = await Transaction.find(filter)
+            .populate('category', 'name color') 
+            .sort({ date: -1 }) 
+            .skip(skip) 
+            .limit(limit); 
+
+        // Count total documents that match the filter for accurate pagination calculation
+        const total = await Transaction.countDocuments(filter); 
         
-        res.status(200).json({ // Send a structured response with pagination info
+        // Send the final response to the client
+        res.status(200).json({ 
             success: true,
             count: transactions.length,
             pagination: {
                 total,
                 page,
                 limit,
-                totalPages: Math.ceil(total / limit)
+                totalPages: Math.ceil(total / limit) || 1
             },
-            data: transactions // Return the fetched transactions
+            data: transactions 
         });
     } catch (error) {
-       next(error); // Pass the error to the centralized middleware
+       next(error); 
     }
 };
 
@@ -37,19 +60,9 @@ exports.getTransactions = async (req, res,next) => {
 // @route   POST /transactions
 exports.createTransaction = async (req, res, next) => {
     try {
-        // Attempt to create a transaction using the incoming body
         const transaction = await Transaction.create(req.body);
-
-        // If successful, return the created object with a 201 (Created) status
-        res.status(201).json({
-            success: true,
-            data: transaction
-        });
-    } // ...
-  catch (error) { // Catch any errors that occur during the creation process
-    next(error);  // Pass the error to the centralized middleware for consistent error handling
-}
-    
+        res.status(201).json({ success: true, data: transaction });
+    } catch (error) { next(error); }
 };
 
 // @desc    Get a single transaction
@@ -57,46 +70,31 @@ exports.createTransaction = async (req, res, next) => {
 exports.getTransaction = async (req, res, next) => {
     try {
         const transaction = await Transaction.findById(req.params.id);
-
-        if (!transaction) {
-            return res.status(404).json({ success: false, error: 'Transaction not found' });
-        }
-
+        if (!transaction) return res.status(404).json({ success: false, error: 'Transaction not found' });
         res.status(200).json({ success: true, data: transaction });
-    } catch (error) {
-        next(error); // Pass the error to the centralized middleware
-    }
+    } catch (error) { next(error); }
 };
 
 // @desc    Update a transaction
 // @route   PUT /transactions/:id
 exports.updateTransaction = async (req, res, next) => {
     try {
-        const allowedUpdates = ['amount', 'type', 'category', 'note', 'date']; // Define which fields are allowed to be updated
+        const allowedUpdates = ['amount', 'type', 'category', 'note', 'date']; 
+        const updateData = {}; 
         
-        const updateData = {}; // Initialize an empty object to hold the valid updates
+        // Ensure only allowed fields are updated
         for (const key of Object.keys(req.body)) {
-            if (allowedUpdates.includes(key)) {
-                updateData[key] = req.body[key]; // Only add the field to updateData if it's in the allowedUpdates list
-            }
+            if (allowedUpdates.includes(key)) updateData[key] = req.body[key]; 
         }
 
-        const transaction = await Transaction.findByIdAndUpdate(
-            req.params.id, 
-            updateData, { 
-                new: true, 
-                runValidators: true }); // Find the transaction by ID and update it with the new data, returning the updated document and running validators
+        const transaction = await Transaction.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true }); 
         if (!transaction) {
-            const error = new Error('Transaction not found'); // Create a new error object with a message indicating the transaction was not found
-            error.statusCode = 404; // Set the status code to 404 (Not Found)
+            const error = new Error('Transaction not found'); 
+            error.statusCode = 404; 
             return next(error);
-
         }
-        res.status(200).json({ success: true, data: transaction }); // Return the updated transaction with a 200 (OK) status
-    } catch (error) {
-        next(error); // Pass the error to the centralized middleware
-    }   
-
+        res.status(200).json({ success: true, data: transaction }); 
+    } catch (error) { next(error); }
 };
 
 // @desc    Delete a transaction
@@ -104,37 +102,22 @@ exports.updateTransaction = async (req, res, next) => {
 exports.deleteTransaction = async (req, res, next) => {
     try {
         const transaction = await Transaction.findByIdAndDelete(req.params.id);
-
-        if (!transaction) {
-            return res.status(404).json({ success: false, error: 'Transaction not found' });
-        }
-
+        if (!transaction) return res.status(404).json({ success: false, error: 'Transaction not found' });
         res.status(200).json({ success: true, data: {} });
-    } catch (error) {
-        next(error);
-    }
+    } catch (error) { next(error); }
 };
 
-
-
-// @desc    Get summary of transactions (income, expense, balance, category totals)
+// @desc    Get summary of transactions (income, expense, balance)
 // @route   GET /transactions/summary 
 exports.getSummary = async (req, res, next) => {
     try {
-        // 1. Calculate overall income and expense
+        // Calculate total income and expense using MongoDB aggregation
         const totals = await Transaction.aggregate([
-            {
-                $group: {
-                    _id: "$type", // Group documents by 'income' or 'expense'
-                    totalAmount: { $sum: "$amount" } // Accumulate the 'amount' field
-                }
-            }
+            { $group: { _id: "$type", totalAmount: { $sum: "$amount" } } }
         ]);
 
-        // Transform the array response into simple variables
         let income = 0;
         let expense = 0;
-
         totals.forEach(item => {
             if (item._id === 'income') income = item.totalAmount;
             if (item._id === 'expense') expense = item.totalAmount;
@@ -142,33 +125,13 @@ exports.getSummary = async (req, res, next) => {
 
         const balance = income - expense;
 
-        // 2. Calculate expenses grouped by category
+        // Calculate expenses grouped by category for the pie chart
         const categoryExpenses = await Transaction.aggregate([
-            {
-                $match: { type: 'expense' } // Filter: Only process expenses
-            },
-            {
-                $group: {
-                    _id: "$category", // Group by the category name
-                    totalSpent: { $sum: "$amount" } // Add up the amounts
-                }
-            },
-            {
-                $sort: { totalSpent: -1 } // Sort by totalSpent in descending order
-            }
+            { $match: { type: 'expense' } },
+            { $group: { _id: "$category", totalSpent: { $sum: "$amount" } } },
+            { $sort: { totalSpent: -1 } }
         ]);
 
-        // Send the final compiled object back to the client
-        res.status(200).json({
-            success: true,
-            data: {
-                income,
-                expense,
-                balance,
-                categoryExpenses
-            }
-        });
-    } catch (error) {
-        next(error);
-    }
+        res.status(200).json({ success: true, data: { income, expense, balance, categoryExpenses } });
+    } catch (error) { next(error); }
 };
