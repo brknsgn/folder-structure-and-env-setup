@@ -179,20 +179,7 @@ const fetchTransactions = async () => {
     to-gray-100
 ">
       
-      {/* EXPORT BUTTON */}
-      <div className="flex justify-end mb-8">
-        <button onClick={handleDownloadCSV} className="px-5 py-3
-    bg-emerald-500
-    hover:bg-emerald-600
-    text-white
-    rounded-xl
-    shadow-md
-    hover:shadow-lg
-    transition-all
-">
-          📥 Export to CSV
-        </button>
-      </div>
+    
 
       {/* BUDGET WARNING ALERT */}
       {overBudgetCategories.length > 0 && (
@@ -307,6 +294,7 @@ const fetchTransactions = async () => {
         totalPages={totalPages}
         setCurrentPage={setCurrentPage}
         isLoading={isLoading}
+        onExport={handleDownloadCSV}
       />
       
     </div>

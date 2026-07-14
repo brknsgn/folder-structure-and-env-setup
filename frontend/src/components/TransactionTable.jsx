@@ -12,22 +12,50 @@ export default function TransactionTable({
   currentPage,
   totalPages,
   setCurrentPage,
-  isLoading
+  isLoading,
+  onExport
 }) {
   
   return (
     <div>
-      <h3 className="
+     <div className="
+    flex
+    justify-between
+    items-center
     bg-white/80
     backdrop-blur-md
     rounded-2xl
     shadow-lg
     p-6
-    font-extrabold
-    text-black
+    mb-4
 ">
-    Transaction History
-</h3>
+    <div>
+        <h3 className="text-2xl font-extrabold text-gray-800">
+            Transaction History
+        </h3>
+
+        <p className="text-sm text-gray-500 mt-1">
+            View and manage all your transactions.
+        </p>
+    </div>
+
+    <button
+        onClick={onExport}
+        className="
+            px-5
+            py-3
+            bg-emerald-500
+            hover:bg-emerald-600
+            text-white
+            rounded-xl
+            shadow-md
+            hover:shadow-lg
+            transition-all
+        "
+    >
+        📥 Export CSV
+    </button>
+</div>
       
       {/* Scrollable container for the table */}
       <div className="
