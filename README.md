@@ -1,174 +1,289 @@
-# 💰 Personal Finance Tracker API
+# 💰 Personal Finance Tracker
 
-A modern, secure, and scalable RESTful API designed to manage personal income and expenses. This project provides a robust backend architecture focused on performance, security, and maintainability.
+A modern full-stack web application designed to help users manage their personal finances efficiently. The application enables users to track income and expenses, visualize financial data by category, export reports as CSV files, and gain insights into their spending habits through interactive charts.
+
+Built with a scalable architecture using **React**, **Node.js**, **Express**, and **MongoDB**, the project focuses on performance, maintainability, and a seamless user experience.
 
 ---
 
 ## 🚀 Features
 
-- 🏗️ **Modular Architecture**
-  - Built using the MVC (Model-View-Controller) design pattern for scalability and clean code.
-
-- 📊 **Relational Data Management**
-  - Connects Transactions and Categories using MongoDB references with `populate()`.
-
-- 🔒 **Production-Ready Security**
-  - Rate Limiting to prevent abuse and DDoS attacks.
-  - CORS protection.
-  - Field Whitelisting to block unauthorized inputs.
-
-- ⚡ **High Performance**
-  - Pagination support for efficient data retrieval.
-
-- 🧪 **Automated Testing**
-  - Integration testing with Jest and Supertest.
-
-- 📖 **API Documentation**
-  - Interactive Swagger UI documentation.
-
-- 📝 **Centralized Logging**
-  - HTTP request logging with Morgan.
+* 💵 Track income and expense transactions.
+* 📂 Organize transactions using custom categories.
+* 📊 Visualize financial data with interactive charts.
+* 🔎 Filter and search transactions by category, type, or date.
+* 📈 Display financial summaries and spending analytics.
+* 📤 Export transaction history as CSV files.
+* ⚠️ Receive budget alerts and monitor spending limits.
+* 📱 Responsive user interface optimized for desktop and mobile devices.
+* ⚡ Real-time updates across the application.
+* 🛡️ Robust backend architecture with centralized error handling.
 
 ---
 
 ## 🛠️ Tech Stack
 
+### Frontend
+
+* React
+* Vite
+* Tailwind CSS
+* Axios
+* React Router
+* Chart.js
+
 ### Backend
-- Node.js
-- Express.js
 
-### Database
-- MongoDB
-- Mongoose
+* Node.js
+* Express.js
+* MongoDB
+* Mongoose
 
-### Security
-- cors
-- express-rate-limit
+### Development Tools
 
-### Documentation
-- swagger-ui-express
-- yamljs
-
-### Testing
-- Jest
-- Supertest
-
-### Utilities
-- Morgan
+* Nodemon
+* dotenv
+* ESLint
 
 ---
 
-## 📦 Installation
+## 🏗️ Architecture
 
-### 1. Clone the Repository
+The project follows a modular architecture inspired by the MVC (Model–View–Controller) pattern.
 
-```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/finance-tracker-api.git
-cd finance-tracker-api
+### Frontend Layer
+
+The frontend is responsible for:
+
+* Rendering the user interface.
+* Managing application state.
+* Sending API requests to the backend.
+* Displaying charts and analytics.
+* Exporting transaction data.
+
+### Backend Layer
+
+The backend handles:
+
+* Business logic and validation.
+* Processing incoming requests.
+* Managing transactions and categories.
+* Generating financial summaries.
+* Handling CSV exports and error responses.
+
+### Database Layer
+
+MongoDB is used as the primary database, while Mongoose provides schema definitions and data modeling.
+
+### Data Flow
+
+```text
+User Action
+     ↓
+React Components
+     ↓
+Axios Requests
+     ↓
+Express Routes
+     ↓
+Controllers
+     ↓
+MongoDB Database
+     ↓
+API Response
+     ↓
+UI Update
 ```
 
-### 2. Install Dependencies
+---
+
+## 📖 API Endpoints
+
+### Transactions
+
+| Method | Endpoint            | Description                    |
+| ------ | ------------------- | ------------------------------ |
+| GET    | `/transactions`     | Retrieve all transactions      |
+| GET    | `/transactions/:id` | Retrieve a transaction by ID   |
+| POST   | `/transactions`     | Create a new transaction       |
+| PUT    | `/transactions/:id` | Update an existing transaction |
+| DELETE | `/transactions/:id` | Delete a transaction           |
+
+### Analytics
+
+| Method | Endpoint                   | Description                |
+| ------ | -------------------------- | -------------------------- |
+| GET    | `/transactions/summary`    | Get financial summary      |
+| GET    | `/transactions/categories` | Get category statistics    |
+| GET    | `/transactions/export`     | Export transactions as CSV |
+
+### Categories
+
+| Method | Endpoint          | Description             |
+| ------ | ----------------- | ----------------------- |
+| GET    | `/categories`     | Retrieve all categories |
+| POST   | `/categories`     | Create a category       |
+| PUT    | `/categories/:id` | Update a category       |
+| DELETE | `/categories/:id` | Delete a category       |
+
+---
+
+## 📸 Screenshots
+
+### Dashboard
+
+
+<img width="1906" height="908" alt="image" src="https://github.com/user-attachments/assets/954fc8a5-c61e-4e47-b89d-3b9ad65c5912" />
+
+
+### Transactions Page
+
+<img width="1893" height="351" alt="image" src="https://github.com/user-attachments/assets/1468fc4d-1632-4a24-a8b4-fba1bc403793" />
+
+
+
+
+### Analytics & Charts
+
+<img width="1897" height="246" alt="image" src="https://github.com/user-attachments/assets/38fac776-05cf-458c-be17-31392231d0fa" />
+
+
+### CSV Export
+
+
+<img width="136" height="45" alt="image" src="https://github.com/user-attachments/assets/65264526-eb8e-4bf0-b787-3cfe49dbede9" />
+
+
+
+
+
+
+## ⚙️ Local Setup
+
+### 1. Clone the repository
 
 ```bash
+git clone https://github.com/brknsgn/personal-finance-tracker.git
+
+cd personal-finance-tracker
+```
+
+### 2. Install dependencies
+
+#### Backend
+
+```bash
+cd backend
+
 npm install
 ```
 
-### 3. Configure Environment Variables
+#### Frontend
 
-Create a `.env` file in the project root:
+```bash
+cd frontend
+
+npm install
+```
+
+---
+
+### 3. Configure environment variables
+
+Create a `.env` file inside the backend folder:
 
 ```env
-PORT=3000
+PORT=5000
+
 MONGO_URI=your_mongodb_connection_string
+
 NODE_ENV=development
 ```
 
-### 4. Start the Development Server
+---
+
+### 4. Run the development servers
+
+#### Start the backend
 
 ```bash
+cd backend
+
 npm run dev
 ```
 
----
-
-## 📖 API Documentation
-
-Once the server is running, open your browser and visit:
-
-```
-http://localhost:3000/api-docs
-```
-
-Swagger UI allows you to explore and test every API endpoint interactively.
-
----
-
-## 🧪 Running Tests
-
-Execute the integration test suite with:
+#### Start the frontend
 
 ```bash
-npm run test
+cd frontend
+
+npm run dev
+```
+
+The frontend application will typically run on:
+
+```text
+http://localhost:5173
+```
+
+The backend API will typically run on:
+
+```text
+http://localhost:5000
 ```
 
 ---
 
-## 📌 API Endpoints
+## 🚀 Deployment
 
-| Method | Endpoint | Description |
-|---------|----------|-------------|
-| GET | `/transactions` | Retrieve all transactions (supports pagination) |
-| POST | `/transactions` | Create a new transaction |
-| GET | `/categories` | Retrieve all categories |
-| POST | `/categories` | Create a new category |
+### Frontend Deployment (Vercel)
 
----
+The React frontend can be deployed easily using Vercel:
 
-## 📂 Project Structure
+1. Connect your GitHub repository to Vercel.
+2. Select the frontend directory.
+3. Configure environment variables.
+4. Deploy automatically on every push.
 
-```
-finance-tracker-api/
-│
-├── controllers/
-├── models/
-├── routes/
-├── middleware/
-├── config/
-├── tests/
-├── docs/
-├── app.js
-├── server.js
-├── package.json
-└── README.md
-```
+### Backend Deployment (Render)
+
+The Express API can be deployed using Render:
+
+1. Create a new Web Service.
+2. Connect your GitHub repository.
+3. Set the build and start commands.
+4. Add the required environment variables.
+5. Deploy the application.
+
+### Database Hosting
+
+MongoDB Atlas is recommended for hosting the production database.
 
 ---
 
-## 🔒 Security Features
+## 🔮 Future Improvements
 
-- Rate Limiting
-- CORS Protection
-- Field Whitelisting
-- Input Validation
-- Centralized Error Handling
-
----
-
-## ⚙️ Built With
-
-- Node.js
-- Express.js
-- MongoDB
-- Mongoose
-- Swagger UI
-- Jest
-- Supertest
-- Morgan
+* 🔐 User authentication and authorization.
+* 👤 Personalized user dashboard.
+* 🌙 Dark mode support.
+* 📅 Recurring transactions.
+* 💰 Monthly budget planning.
+* 🔔 Notifications and spending alerts.
+* 📊 Advanced analytics and reporting.
+* 📱 Progressive Web App (PWA) support.
+* 🐳 Docker containerization.
+* ⚙️ CI/CD pipeline integration.
 
 ---
 
 ## 👨‍💻 Author
 
-Developed with backend engineering best practices, focusing on scalability, maintainability, and security.
+**Barkın Sağın**
+
+GitHub: https://github.com/brknsgn
 
 ---
+
+## 📄 License
+
+This project is licensed under the MIT License.
